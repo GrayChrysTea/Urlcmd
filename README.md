@@ -1,4 +1,4 @@
-# Urlcmd v0.1.0
+# Urlcmd v0.2.0
 
 Made by GrayChrysTea
 
@@ -16,6 +16,13 @@ terminal would accept and runs it. Here's an example:
 ```bash
 urlcmd echo?@0=hello&@1=world
 # hello world
+```
+
+If you want to get a glimpse of what is going on behind the scenes, you can
+pass the verbosity option `v` with the level of verbosity like this:
+
+```bash
+urlcmd -v1 git?^help=1#init # Resulting commmand: git init --help
 ```
 
 ## Why
@@ -53,5 +60,5 @@ These 2 commands will build Urlcmd and copy the executable into your
 ## TODO
 
 - [x] Complete the core features of Urlcmd
-- [ ] Improve help message to include command examples and formats
-- [ ] Add flag to preview commands without running them
+- [x] Improve help message to include command examples and formats
+- [x] Add flag to preview commands without running them

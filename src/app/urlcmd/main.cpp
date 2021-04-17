@@ -3,7 +3,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <boost/program_options.hpp>
-#include "urlcmd.hpp"
+#include "appargs.hpp"
 #include "parser.hpp"
 
 namespace po = boost::program_options;
@@ -53,13 +53,15 @@ int run(int argc, char *argv[]) {
         std::cout << "> " << cmdStr << '\n';
         delete builder;
         delete command;
-        int exitCode = system(cmdStr.c_str());
-        if (exitCode) {
-            std::cerr
-                << "Command exited with nonzero exit code "
-                << exitCode <<
-                ". Propagating exit code.\n";
-                return exitCode;
+        if (!options.mPreview) {
+            int exitCode = system(cmdStr.c_str());
+            if (exitCode) {
+                std::cerr
+                    << "Command exited with nonzero exit code "
+                    << exitCode <<
+                    ". Propagating exit code.\n";
+                    return exitCode;
+            }
         }
     }
     return 0;
