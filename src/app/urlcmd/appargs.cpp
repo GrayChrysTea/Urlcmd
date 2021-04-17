@@ -62,7 +62,7 @@ Uc2::AppArgs::AppArgs(int argc, char **argv) {
         std::cout << visible_options;
     } else if (mVersion) {
         std::cout << URLCMD_FULLNAME << '\n';
-        std::cout << "\nWritten by <!-- Renoir Tan -->\n";
+        std::cout << "\nWritten by <!-- GrayChrysTea -->\n";
     }
 }
 
