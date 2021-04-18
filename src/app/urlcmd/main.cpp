@@ -21,8 +21,12 @@ int run(int argc, char *argv[]) {
     }
     for (auto input : options.mInput) {
         int parseOptions = Uc2::DEFAULT;
-        if (options.mVerbosity)
+        if (options.mVerbosity) {
             parseOptions |= Uc2::VERBOSE;
+        }
+        if (options.mDosForm) {
+            parseOptions |= Uc2::DOSFORM;
+        }
         Uc2::Command *command;
         try {
             command = new Uc2::Command(input, parseOptions);
@@ -30,6 +34,15 @@ int run(int argc, char *argv[]) {
             std::cerr << e << '\n';
             return 1;
         } URLCMD_CATCHDEFAULT;
+        if (command->err()) {
+            delete command;
+            std::cerr << "Invalid command: " << input << '\n';
+            if (options.mSkip) {
+                continue;
+            } else {
+                return 2;
+            };
+        }
         std::vector<Uc2::Query> queries;
         try {
             queries = command->queries();
@@ -40,7 +53,7 @@ int run(int argc, char *argv[]) {
         std::cout << '\n';
         for (Uc2::Query query : queries) {
             if (options.mVerbosity)
-                std::cout << '\t' << query.format() << '\n';
+                std::cout << '\t' << query.format(parseOptions) << '\n';
         }
         Uc2::Builder *builder;
         try {

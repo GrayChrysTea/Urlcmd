@@ -33,7 +33,9 @@ Uc2::AppArgs::AppArgs(int argc, char **argv) {
     flags.add_options()
         ("help,h", "Display this help message.")
         ("version,V", "Display the version of this urlcmd.")
-        ("preview,p", "Preview the resulting commands but do not run them.");
+        ("preview,p", "Preview the resulting commands but do not run them.")
+        ("dos,d", "Use the DOS format for commands and flags.")
+        ("skip,S", "Skip invalid commands instead of halting Urlcmd.");
     po::options_description options("Options");
     options.add_options()
         (
@@ -70,6 +72,8 @@ Uc2::AppArgs::AppArgs(int argc, char **argv) {
     mHelp = vmap.count("help");
     mVersion = vmap.count("version");
     mPreview = vmap.count("preview");
+    mDosForm = vmap.count("dos");
+    mSkip = vmap.count("skip");
 
     if (mHelp) {
         Uc2::printHelp(cmdlineOptions);
@@ -93,6 +97,8 @@ Uc2::AppArgs &Uc2::AppArgs::debug(int flags) {
         << "Version: " << mVersion << '\n'
         << "Help: " << mHelp << '\n'
         << "Preview: " << mPreview << '\n'
+        << "Dos Format: " << mDosForm << '\n'
+        << "Skip Invalid Commands: " << mSkip << '\n'
         << "Commands:\n" 
         << Ut::vectorToString(&mInput, 1, 1);
     return *this;

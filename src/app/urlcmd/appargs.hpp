@@ -19,6 +19,8 @@ namespace UrlCmd::UrlCmd {
         int mHelp;
         int mVersion;
         int mPreview;
+        int mDosForm;
+        int mSkip;
         std::vector<std::string> mInput;
 
         AppArgs(void);

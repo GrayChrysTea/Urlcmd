@@ -19,6 +19,10 @@ static const boost::regex queriesRe(
 
 static const boost::regex intRe("^\\d+$");
 
+static inline std::string surround(std::string s) {
+    return '\"' + s + '\"';
+}
+
 static std::string replaceEscapeCodes(std::string input) {
     std::string result;
     // If 0, then parse as normal
@@ -52,12 +56,12 @@ static std::string replaceEscapeCodes(std::string input) {
             if (state == 1) {
                 // Multiply by 16 to move first digit to 'tens' digit
                 asciiResult <<= 4;
+                state++;
             } else if (state >= 2) {
                 state = 0;
                 result += asciiResult;
                 asciiResult = 0;
             }
-            state++;
         }
     }
     if (state)
@@ -65,20 +69,38 @@ static std::string replaceEscapeCodes(std::string input) {
     return result;
 }
 
-static std::string generateFlag(std::string flagName) {
-    if (!flagName.size())
-        return "--";
-    std::string output("\"-");
-    if (flagName.size() > 1) {
-        output += "-";
+static std::string dosFormat(std::string input, int options = 0) {
+    if (input.find(" ") == std::string::npos) {
+        return input;
+    } else {
+        return surround(input);
     }
-    output += replaceEscapeCodes(flagName);
-    output += "\"";
-    return output;
 }
 
-static std::string surround(std::string s) {
-    return '\"' + s + '\"';
+static std::string generateFlag(std::string flagName, int options = 0) {
+    if (options & Uc2::VERBOSE) {
+        std::cout << "Generating flag from: " << flagName << '\n';
+        if (options & Uc2::DOSFORM) {
+            std::cout << "Using the DOS format.\n";
+        } else {
+            std::cout << "Using the bash format.\n";
+        }
+    }
+    if (!flagName.size()) {
+        return "--";
+    }
+    std::string output;
+    if (options & Uc2::DOSFORM) {
+        output += "/";
+        output += flagName;
+    } else {
+        output += "-";
+        if (flagName.size() > 1) {
+            output += "-";
+        }
+        output += replaceEscapeCodes(flagName);
+    }
+    return output;
 }
 
 Uc2::Command::Command(
@@ -241,16 +263,22 @@ std::string Uc2::Query::right(void) {
     return mRight;
 }
 
-std::string Uc2::Query::format(void) {
+std::string Uc2::Query::format(int options) {
     if (mQueryKind == Uc2::QueryKind::Option) {
-        std::string output = generateFlag(mLeft);
-        output += " \"";
-        output += replaceEscapeCodes(mRight);
-        output += "\"";
-        return output;
+        if (options & Uc2::DOSFORM) {
+            return dosFormat(generateFlag(mLeft, options))
+                + ":"
+                + dosFormat(replaceEscapeCodes(mRight));
+        } else {
+            return surround(generateFlag(mLeft, options))
+                + " "
+                + surround(replaceEscapeCodes(mRight));
+        }
     } else if (mQueryKind == Uc2::QueryKind::Flag) {
         std::string output("");
-        std::string customLeft = generateFlag(mLeft);
+        std::string customLeft = (options & Uc2::DOSFORM)
+            ? dosFormat(generateFlag(mLeft, options))
+            : surround(generateFlag(mLeft, options));
         for (int i = 0; i < mRightInt.value_or(0); i++) {
             output += customLeft;
             output += ' ';
@@ -261,11 +289,9 @@ std::string Uc2::Query::format(void) {
     } else if (mQueryKind == Uc2::QueryKind::SubCommandFlag) {
         return surround(replaceEscapeCodes(mRight));
     } else if (mQueryKind == Uc2::QueryKind::SubCommandOption) {
-        return "\""
-            + replaceEscapeCodes(mLeft)
-            + "\" \""
-            + replaceEscapeCodes(mRight)
-            + "\"";
+        return surround(replaceEscapeCodes(mLeft))
+            + " "
+            + surround(replaceEscapeCodes(mRight));
     }
     throw std::string("Unrecognized QueryKind.");
 }
@@ -283,7 +309,9 @@ int Uc2::Query::position(void) {
 Uc2::Builder::Builder(Command &command, int options) {
     int queryOffset = 1;
     {
-        std::string path = surround(replaceEscapeCodes(command.path()));
+        std::string path = (options & Uc2::DOSFORM)
+            ? dosFormat(replaceEscapeCodes(command.path()))
+            : surround(replaceEscapeCodes(command.path()));
         if (options & Uc2::VERBOSE)
             std::cout << "Building command with path: " << path << '\n';
         mClargs.push_back(path);
@@ -291,10 +319,13 @@ Uc2::Builder::Builder(Command &command, int options) {
     {
         std::string fragment = command.fragment();
         if (fragment != "") {
-            fragment = surround(replaceEscapeCodes(fragment.substr(1)));
-            if (options & Uc2::VERBOSE)
+            fragment = (options & Uc2::DOSFORM)
+                ? dosFormat(replaceEscapeCodes(fragment.substr(1)))
+                : surround(replaceEscapeCodes(fragment.substr(1)));
+            if (options & Uc2::VERBOSE) {
                 std::cout << "Fragment present: " << fragment << '\n';
                 std::cout << "Adding to command list...\n";
+            }
             mClargs.push_back(fragment);
             queryOffset++;
         }
@@ -303,7 +334,7 @@ Uc2::Builder::Builder(Command &command, int options) {
     
     for (Uc2::Query query : command.queries()) {
         int position = query.position();
-        std::string strQuery = query.format();
+        std::string strQuery = query.format(options);
         if (options & Uc2::VERBOSE) {
             std::cout << "Sorting query: " << strQuery << '\n';
         }
