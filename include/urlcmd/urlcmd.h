@@ -7,7 +7,7 @@
 #   define HAS_URLCMD 1
 
 #   define URLCMD_MAJOR 0
-#   define URLCMD_MINOR 2
+#   define URLCMD_MINOR 3
 #   define URLCMD_PATCH 0
 #   define URLCMD_VERSION URLCMD_STR(URLCMD_MAJOR) "." \
         URLCMD_STR(URLCMD_MINOR) "." URLCMD_STR(URLCMD_PATCH)

@@ -10,6 +10,7 @@
 namespace UrlCmd::UrlCmd {
     static int DEFAULT = 0;
     static int VERBOSE = 1;
+    static int DOSFORM = 2;
 
     enum class QueryKind : int {
         Positional = 1, // @1=something
@@ -25,7 +26,7 @@ namespace UrlCmd::UrlCmd {
             QueryKind queryKind(void);
             std::string left(void);
             std::string right(void);
-            std::string format(void);
+            std::string format(int options = 0);
             int position(void);
     
         private:
