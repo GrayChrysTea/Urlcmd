@@ -1,4 +1,4 @@
-#include "urlcmd.hpp"
+#include "appargs.hpp"
 #include <iostream>
 #include <urlcmd/urlcmd.h>
 #include <urlcmd/utils.hpp>
@@ -7,6 +7,17 @@
 namespace Uc2 = UrlCmd::UrlCmd;
 namespace Ut = UrlCmd::Utils;
 namespace po = boost::program_options;
+
+int Uc2::printHelp(po::options_description &visible, int options) {
+    std::cout << visible;
+    return 0;
+}
+
+int Uc2::printGeneral(int options) {
+    std::cout << URLCMD_FULLNAME << '\n';
+    std::cout << "\nWritten by <!-- GrayChrysTea -->\n";
+    return 0;
+}
 
 Uc2::AppArgs::AppArgs(void) : mInput() {
     mStatus = 0;
@@ -21,7 +32,8 @@ Uc2::AppArgs::AppArgs(int argc, char **argv) {
     po::options_description flags("Flags");
     flags.add_options()
         ("help,h", "Display this help message.")
-        ("version,V", "Display the version of this urlcmd.");
+        ("version,V", "Display the version of this urlcmd.")
+        ("preview,p", "Preview the resulting commands but do not run them.");
     po::options_description options("Options");
     options.add_options()
         (
@@ -29,18 +41,18 @@ Uc2::AppArgs::AppArgs(int argc, char **argv) {
             po::value<int>(&this->mVerbosity)->default_value(0),
             "Set the verbosity for urlcmd."
         );
-    po::options_description hidden("Hidden Options");
-    hidden.add_options()
+    po::options_description inputs("Parameters");
+    inputs.add_options()
         (
             "input-commands,c",
             po::value<std::vector<std::string>>(&this->mInput),
             "The commands you want to input to urlcmd."
         );
     
-    po::options_description cmdline_options;
-    cmdline_options.add(flags).add(options).add(hidden);
-    po::options_description visible_options(URLCMD_FULLNAME);
-    visible_options.add(flags).add(options);
+    po::options_description cmdlineOptions(URLCMD_FULLNAME);
+    cmdlineOptions.add(flags).add(options).add(inputs);
+    // po::options_description visible_options(URLCMD_FULLNAME);
+    // visible_options.add(flags).add(options);
     
     po::positional_options_description positionals;
     positionals.add("input-commands", -1);
@@ -48,7 +60,7 @@ Uc2::AppArgs::AppArgs(int argc, char **argv) {
     po::variables_map vmap;
     po::store(
         po::command_line_parser(argc, argv)
-            .options(cmdline_options)
+            .options(cmdlineOptions)
             .positional(positionals)
             .run(),
         vmap
@@ -57,12 +69,12 @@ Uc2::AppArgs::AppArgs(int argc, char **argv) {
 
     mHelp = vmap.count("help");
     mVersion = vmap.count("version");
+    mPreview = vmap.count("preview");
 
     if (mHelp) {
-        std::cout << visible_options;
+        Uc2::printHelp(cmdlineOptions);
     } else if (mVersion) {
-        std::cout << URLCMD_FULLNAME << '\n';
-        std::cout << "\nWritten by <!-- GrayChrysTea -->\n";
+        Uc2::printGeneral();
     }
 }
 
@@ -74,18 +86,19 @@ Uc2::AppArgs &Uc2::AppArgs::reset(void) {
     return *this;
 }
 
-Uc2::AppArgs &Uc2::AppArgs::debug(int flags = 0) {
+Uc2::AppArgs &Uc2::AppArgs::debug(int flags) {
     std::cout << URLCMD_FULLNAME " AppArgs\n\n"
         << "Status: " << mStatus << '\n'
         << "Verbosity: " << mVerbosity << '\n'
         << "Version: " << mVersion << '\n'
         << "Help: " << mHelp << '\n'
+        << "Preview: " << mPreview << '\n'
         << "Commands:\n" 
         << Ut::vectorToString(&mInput, 1, 1);
     return *this;
 }
 
-Uc2::AppArgs Uc2::argsWithStatus(int status = 0) {
+Uc2::AppArgs Uc2::argsWithStatus(int status) {
     Uc2::AppArgs options;
     options.mStatus = status;
     return options;
