@@ -4,4 +4,5 @@ target_link_libraries(
     PRIVATE
     ${Boost_PROGRAM_OPTIONS_LIBRARIES}
     ${Boost_REGEX_LIBRARIES}
+    ${PROJECT_NAME}-parser
 )
