@@ -3,6 +3,13 @@
 #   define URLCMD_TYPEDEF_H
 
 #   include <cstdint>
+#   include <cstddef>
+
+#   define URLCMD_OPTION uint32_t
+#   define URLCMD_CONSTOPTION static const URLCMD_OPTION
+#   define URLCMD_OPTIONMAX UINT32_MAX
+#   define URLCMD_OPTIONDEFAULT 0
+#   define URLCMD_PTR void*
 
 namespace UrlCmd::Typedef {
     typedef void* pointer;

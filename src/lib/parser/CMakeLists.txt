@@ -1,1 +1,1 @@
-add_library(${PROJECT_NAME}-parser STATIC parser.cpp)
+add_library(${PROJECT_NAME}-parser STATIC constants.cpp parser.cpp)
