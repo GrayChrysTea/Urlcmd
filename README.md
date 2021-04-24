@@ -1,4 +1,4 @@
-# Urlcmd v0.2.0
+# Urlcmd v0.4.0
 
 Made by GrayChrysTea
 
