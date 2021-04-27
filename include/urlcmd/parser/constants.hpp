@@ -46,6 +46,18 @@ namespace Urlcmd::Parser {
         URLCMD_CONSTOPTION LEFT = 1;
         URLCMD_CONSTOPTION RIGHT = 2;
     }
+    
+    static const char QUERY_START = '?';
+    static const char QUERY_SEPARATOR = '&';
+    static const char FRAGMENT_START = '#';
+    static const char RESERVED_CHARS[3] = {
+        QUERY_START,
+        QUERY_SEPARATOR,
+        FRAGMENT_START
+    };
+    static const size_t RESERVED_CHARS_SIZE = (
+        sizeof(RESERVED_CHARS) / sizeof(char)
+    );
 }
 
 #endif

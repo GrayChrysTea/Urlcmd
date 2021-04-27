@@ -6,41 +6,10 @@
 #   include <vector>
 #   include <unordered_map>
 #   include "constants.hpp"
+#   include "utils.hpp"
 #   include <urlcmd/typedef.hpp>
 
-
-
 namespace Urlcmd::Parser {
-    static const char QUERY_START = '?';
-    static const char QUERY_SEPARATOR = '&';
-    static const char FRAGMENT_START = '#';
-    static const char RESERVED_CHARS[3] = {
-        QUERY_START,
-        QUERY_SEPARATOR,
-        FRAGMENT_START
-    };
-    static const size_t RESERVED_CHARS_SIZE = (
-        sizeof(RESERVED_CHARS) / sizeof(char)
-    );
-    
-    int32_t isReservedChar(char _char);
-    
-    inline int32_t hexToInt(char _hexChar);
-    
-    namespace EscapeCodeErrors {
-        static const int32_t BAD_CHAR = -1;
-    }
-    
-    struct EscapeCodeConverter {
-        int32_t state;
-        char current;
-        
-        EscapeCodeConverter(Options _options);
-        EscapeCodeConverter &reset(Options _options);
-        int32_t available(Options _options);
-        int32_t write(char _hexChar, Options _options);
-    };
-    
     class Command {
         public:
             Command(Options _options);
