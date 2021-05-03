@@ -25,9 +25,14 @@ inline int32_t UcPsr::hexToInt(const char _hexChar) noexcept {
     }
 }
 
+UcPsr::EscapeCodeConverter::EscapeCodeConverter(void) :
+    state(0),
+    current(0)
+{}
+
 UcPsr::EscapeCodeConverter::EscapeCodeConverter(
     const UcPsr::Options &_options
-) noexcept {
+) {
     if (_options.verbosity >= 3) {
         std::cout << "Creating a new escape code converter object...\n";
     }
@@ -35,7 +40,7 @@ UcPsr::EscapeCodeConverter::EscapeCodeConverter(
 
 UcPsr::EscapeCodeConverter &UcPsr::EscapeCodeConverter::reset(
     const UcPsr::Options &_options
-) noexcept {
+) {
     if (_options.verbosity >= 3) {
         std::cout
             << "Resetting this escape code converter at "
@@ -49,7 +54,7 @@ UcPsr::EscapeCodeConverter &UcPsr::EscapeCodeConverter::reset(
 
 int32_t UcPsr::EscapeCodeConverter::available(
     const UcPsr::Options &_options
-) noexcept const {
+) {
     if (_options.verbosity >= 3) {
         std::cout
             << "Checking to see if this escape code converter "
@@ -86,31 +91,31 @@ int32_t UcPsr::EscapeCodeConverter::write(
     return 0;
 }
 
-void UcPsr::EscapeCodeConverter::hurl(void) {
-    if (this->available()) {
+void UcPsr::EscapeCodeConverter::hurl(const Options &_options) {
+    if (this->available(_options)) {
         throw std::string("Incomplete parsing of escape code!");
     }
 }
 
 int32_t UcPsr::EscapeCodeConverter::isOk(
     const UcPsr::Options &_options
-) noexcept const {
+) {
     if (_options.verbosity >= 3) {
         std::cout
             << "Checking to see if this escape code has been parsed "
             << "correctly.\n";
     }
-    return this->available();
+    return this->available(_options);
 }
 
 std::optional<char> UcPsr::EscapeCodeConverter::get(
     const UcPsr::Options &_options
-) noexcept {
+) {
     if (_options.verbosity >= 3) {
         std::cout
             << "Attempting to grab the character form by an escape code.\n";
     }
-    if (this->available()) {
+    if (this->available(_options)) {
         return std::nullopt;
     }
     return current;
