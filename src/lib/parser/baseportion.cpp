@@ -3,7 +3,7 @@
 
 namespace UcPsr = Urlcmd::Parser;
 
-UcPsr::BasePortion::BasePortion(void) :
+UcPsr::BasePortion::BasePortion(void) noexcept :
     mStart(0),
     mEnd(0)
 {
@@ -14,7 +14,7 @@ UcPsr::BasePortion::BasePortion(
     std::string *_str,
     size_t _start,
     UcPsr::Options &_options
-) {
+) noexcept {
     if (_options.verbosity >= 2) {
         std::cout << "Creating a new URL portion parser...\n";
     }
@@ -23,7 +23,7 @@ UcPsr::BasePortion::BasePortion(
     mEnd = std::nullopt;
 }
 
-UcPsr::BasePortion::BasePortion(UcPsr::BasePortion &&_other) :
+UcPsr::BasePortion::BasePortion(UcPsr::BasePortion &&_other) noexcept :
     mStart(_other.mStart),
     mEnd(_other.mEnd),
     mResult(std::move(_other.mResult))
@@ -36,7 +36,7 @@ UcPsr::BasePortion::BasePortion(UcPsr::BasePortion &&_other) :
 
 UcPsr::BasePortion &UcPsr::BasePortion::operator=(
     UcPsr::BasePortion &&_other
-) {
+) noexcept {
     mStr = _other.mStr;
     mStart = _other.mStart;
     mEnd = _other.mEnd;

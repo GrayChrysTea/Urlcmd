@@ -19,20 +19,20 @@ namespace Urlcmd::Parser {
         int32_t state;
         char current;
         
-        EscapeCodeConverter(void);
-        EscapeCodeConverter(const Options &_options);
+        EscapeCodeConverter(void) noexcept;
+        EscapeCodeConverter(const Options &_options) noexcept;
         EscapeCodeConverter(const EscapeCodeConverter &_other) = default;
         EscapeCodeConverter(EscapeCodeConverter &&_other) = default;
         EscapeCodeConverter &operator=(
             const EscapeCodeConverter &_other
         ) = default;
         EscapeCodeConverter &operator=(EscapeCodeConverter &&_other) = default;
-        EscapeCodeConverter &reset(const Options &_options);
-        int32_t available(const Options &_options);
-        int32_t write(const char _hexChar, const Options &_options);
-        void hurl(const Options &_options);
-        int32_t isOk(const Options &_options);
-        std::optional<char> get(const Options &_options);
+        EscapeCodeConverter &reset(const Options &_options) noexcept;
+        int32_t available(const Options &_options) const noexcept;
+        int32_t write(const char _hexChar, const Options &_options) noexcept;
+        void hurl(const Options &_options) const;
+        int32_t isOk(const Options &_options) const noexcept;
+        std::optional<char> get(const Options &_options) const;
     };
 }
 

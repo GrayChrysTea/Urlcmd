@@ -10,12 +10,12 @@ namespace Urlcmd::Parser {
         uint32_t useQuotes = 0;
         URLCMD_OPTION format = 0;
         
-        Options(void);
+        Options(void) noexcept;
         Options(
             uint32_t _verbosity = 0,
             uint32_t _quotes = 0,
             URLCMD_OPTION _format = 0 // ::OutputOptions
-        );
+        ) noexcept;
         Options(const Options &_other) = default;
         Options(Options &&_other) = default;
         Options &operator=(const Options &_other) = default;
