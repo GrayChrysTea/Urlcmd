@@ -25,6 +25,13 @@ inline int32_t UcPsr::hexToInt(const char _hexChar) noexcept {
     }
 }
 
+int32_t UcPsr::hasPrefix(
+    const std::string &_main,
+    const std::string &_prefix
+) noexcept {
+    return _main.substr(0, _prefix.size()) == _prefix;
+}
+
 UcPsr::EscapeCodeConverter::EscapeCodeConverter(void) noexcept :
     state(0),
     current(0)

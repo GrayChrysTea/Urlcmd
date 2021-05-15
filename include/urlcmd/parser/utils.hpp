@@ -3,6 +3,7 @@
 #   define URLCMD_PARSER_UTILS_HPP
 
 #   include <optional>
+#   include <string>
 #   include "constants.hpp"
 #   include <urlcmd/typedef.hpp>
 
@@ -10,6 +11,11 @@ namespace Urlcmd::Parser {
     int32_t isReservedChar(const char _char) noexcept;
     
     inline int32_t hexToInt(const char _hexChar) noexcept;
+
+    int32_t hasPrefix(
+        const std::string &_main,
+        const std::string &_prefix
+    ) noexcept;
     
     namespace EscapeCodeErrors {
         static const int32_t BAD_CHAR = -1;

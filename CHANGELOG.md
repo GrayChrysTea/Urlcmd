@@ -30,3 +30,4 @@ even though 2 valid hexidecimal digits were given.
 
 1. Created a new parser for pseudo-URLs. The new parser should allow more
 fine-grained error messages and give me more control.
+2. The positional argument flag has been changed from "@" to "\*" (mostly to make things easier for me :P).

@@ -14,7 +14,7 @@ of URLs. It takes the *pseudo-URLS* and converts them into commands a
 terminal would accept and runs it. Here's an example:
 
 ```bash
-urlcmd echo?@0=hello&@1=world
+urlcmd "echo?*0=hello+world"
 # hello world
 ```
 

@@ -5,5 +5,6 @@ add_library(
     utils.cpp
     baseportion.cpp
     "path.cpp"
+    query.cpp
     fragment.cpp
 )
