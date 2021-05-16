@@ -31,7 +31,7 @@ UcPsr::BasePortion::BasePortion(UcPsr::BasePortion &&_other) noexcept :
     mStr = _other.mStr;
     _other.mStr = nullptr;
     _other.mStart = 0;
-    _other.mEnd = 0;
+    _other.mEnd = std::nullopt;
 }
 
 UcPsr::BasePortion &UcPsr::BasePortion::operator=(
@@ -43,7 +43,7 @@ UcPsr::BasePortion &UcPsr::BasePortion::operator=(
     mResult = std::move(_other.mResult);
     _other.mStr = nullptr;
     _other.mStart = 0;
-    _other.mEnd = 0;
+    _other.mEnd = std::nullopt;
     return *this;
 }
 
