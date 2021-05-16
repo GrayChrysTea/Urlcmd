@@ -66,7 +66,7 @@ UcPsr::QueryKindDetector &UcPsr::QueryKindDetector::reset(
     return *this;
 }
 
-UcPsr::Query &replaceStr(
+UcPsr::Query &UcPsr::Query::replaceStr(
     std::string *_str,
     size_t _start,
     UcPsr::Options &_options
