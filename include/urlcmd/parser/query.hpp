@@ -50,7 +50,15 @@ namespace Urlcmd::Parser {
             mutable QueryKindDetector mDetector;
             mutable URLCMD_OPTION mKind;
             mutable std::optional<size_t> mEqualsAt;
+            mutable std::optional<size_t> mPosition;
             Query &pFindEnd(Options &_options);
+            std::string pGetLeft(Options &_options);
+            std::string pGetRight(Options &_options);
+            Query &pYieldPositional(Options &_options);
+            Query &pYieldFlag(Options &_options);
+            Query &pYieldOption(Options &_options);
+            Query &pYieldSubcommandFlag(Options &_options);
+            Query &pYieldSubcommandOption(Options &_options);
     }
 }
 

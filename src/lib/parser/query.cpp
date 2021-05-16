@@ -1,6 +1,7 @@
 #include <urlcmd/parser/query.hpp>
 #include <urlcmd/parser/utils.hpp>
 #include <iostream>
+#include <boost/lexical_cast.hpp>
 
 namespace UcPsr = Urlcmd::Parser;
 
@@ -78,6 +79,7 @@ UcPsr::Query::Query(void) noexcept :
     mStr = nullptr;
     mEnd = std::nullopt;
     mEqualsAt = std::nullopt;
+    mPosition = std::nullopt;
 }
 
 UcPsr::Query::Query(
@@ -97,6 +99,7 @@ UcPsr::Query::Query(
     mStr = _str;
     mEnd = std::nullopt;
     mEqualsAt = std::nullopt;
+    mPosition = std::nullopt;
 }
 
 UcPsr::Query::Query(UcPsr::Query &&_other) noexcept :
@@ -104,12 +107,14 @@ UcPsr::Query::Query(UcPsr::Query &&_other) noexcept :
     mEnd(_other.mEnd),
     mKind(_other.mKind),
     mDetector(std::move(_other.mDetector)),
-    mResult(std::move(_other.mResult))
+    mResult(std::move(_other.mResult)),
+    mPosition(_other.mPosition)
 {
     mStr = _other.mStr;
     _other.mStr = nullptr;
     _other.mStart = 0;
     _other.mEnd = std::nullopt;
+    _other.mPosition = 0;
 }
 
 UcPsr::Query &operator=(UcPsr::Query &&_other) noexcept {
@@ -119,10 +124,12 @@ UcPsr::Query &operator=(UcPsr::Query &&_other) noexcept {
     mKind = _other.mKind;
     mDetector = std::move(_other.mDetector);
     mResult = std::move(_other.mResult);
+    mPosition = _other.mPosition;
     _other.mStr = nullptr;
     _other.mStart = 0;
     _other.mEnd = std::nullopt;
     _other.mKind = 0;
+    _other.mPosition = 0;
     return *this;
 }
 
@@ -190,6 +197,26 @@ std::string UcPsr::Query::result(UcPsr::Options &_options) {
         throw std::string("Invalid query.");
     }
     this->guessKind(_options);
+    switch (mKind) {
+        case UcPsr::QueryKind::POSITIONAL:
+            pYieldPositional(_options);
+            break;
+        case UcPsr::QueryKind::FLAG:
+            pYieldFlag(_options);
+            break;
+        case UcPsr::QueryKind::OPTION:
+            pYieldOption(_options);
+            break;
+        case UcPsr::QueryKind::SUBCOMMANDFLAG:
+            pYieldSubcommandFlag(_options);
+            break;
+        case UcPsr::QueryKind::SUBCOMMANDOPTION:
+            pYieldSubcommandOption(_options);
+            break;
+        default:
+            throw std::string("Unknown query kind detected.");
+    }
+    return _result;
 }
 
 UcPsr::Query &UcPsr::Query::pFindEnd(UcPsr::Options &_options) {
@@ -273,5 +300,61 @@ UcPsr::Query &UcPsr::Query::pFindEnd(UcPsr::Options &_options) {
         }
     }
     mEnd = _result ? _result : _size;
+    return *this;
+}
+
+std::string UcPsr::Query::pGetLeft(UcPsr::Options &_options) {
+    if (_options.verbosity >= 4) {
+        std::cout
+            << "[Urlcmd::Parser::Query::pGetLeft] "
+            << "Getting the left side of the query.\n";
+    }
+    return mStr->substr(0, mEqualsAt.value());
+}
+
+std::string UcPsr::Query::pGetRight(UcPsr::Options &_options) {
+    if (_options.verbosity >= 4) {
+        std::cout
+            << "[Urlcmd::Parser::Query::pGetRight] "
+            << "Getting the right side of the query.\n";
+    }
+    return mStr->substr(mEqualsAt.value() + 1);
+}
+
+UcPsr::Query &UcPsr::Query::pYieldPositional(UcPsr::Options &_options) {
+    if (_options.verbosity >= 4) {
+        std::cout
+            << "[Urlcmd::Parser::Query::pYieldPositional] "
+            << "Getting positional form of argument.\n";
+    }
+    std::string _left = pGetLeft(_options).substr(1);
+    std::string _right = pGetRight(_options);
+    size_t _pos = 0;
+    try {
+        _pos = boost::lexical_cast<size_t>(_left);
+    } catch (const boost::bad_lexical_cast &_e) {
+        throw std::string(
+            "Invalid left side in this positional query: "
+        ) + *mStr;
+    }
+    mResult = UcPsr::convertEscapeCodes(_right, _options);
+    mPosition = _pos;
+    return *this;
+}
+
+UcPsr::Query &UcPsr::Query::pYieldFlag(UcPsr::Options &_options) {
+    if (_options.verbosity >= 4) {
+        std::cout
+            << "[Urlcmd::Parser::Query::pYieldFlag] "
+            << "Getting flag form of argument.\n";
+    }
+    std::string _left = pGetLeft(_options).substr(1);
+    std::string _right = pGetRight(_options);
+    std::string _flag = UcPsr::generateFlag(_left, _options);
+    size_t _reps = boost::lexical_cast<size_t>(_right);
+    mResult = "";
+    for (size_t _i = 0; _i < _reps; _i++) {
+        mResult += _flag + " ";
+    }
     return *this;
 }

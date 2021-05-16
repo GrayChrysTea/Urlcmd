@@ -1,4 +1,8 @@
+#include <cctype>
 #include <iostream>
+#include <string>
+#include <urlcmd/error.hpp>
+#include <urlcmd/parser/utils.hpp>
 #include <urlcmd/parser/constants.hpp>
 #include <urlcmd/parser/parser.hpp>
 
@@ -30,6 +34,79 @@ int32_t UcPsr::hasPrefix(
     const std::string &_prefix
 ) noexcept {
     return _main.substr(0, _prefix.size()) == _prefix;
+}
+
+int32_t hasWhitespace(const std::string &_str) noexcept {
+    for (auto _it : _str) {
+        if (std::isspace(_it)) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+std::string UcPsr::convertEscapeCodes(
+    const std::string &_str,
+    UcPsr::Options &_options
+) {
+    EscapeCodeConverter _converter(_options);
+    std::string _result = "";
+    for (size_t _index = 0; _index < _str.size(); _index++) {
+        char _current = _str[_index];
+        int32_t _state = _converter.write(_current, _options);
+        if (URLCMD_ISWARN(_state)) {
+            _result += _converter.get(_options);
+            _converter.reset(_options);
+            _state = _converter.write(_current, _options);
+            if (!URLCMD_ISOK(_state)) {
+                throw std::string("Could not decode ")
+                    + _current
+                    + " at index " 
+                    + std::to_string(_index);
+            }
+        }
+    }
+    return _result;
+}
+
+std::string UcPsr::generateFlag(
+    const std::string &_str,
+    UcPsr::Options &_options
+) {
+    std::string _converted = UcPsr::convertEscapeCodes(_str, _options);
+    if (_converted.size() < 1) {
+        if (_options.format == UcPsr::OutputOptions::DOS) {
+            throw std::string("Flag cannot be empty.");
+        } else {
+            return std::string("--");
+        }
+    } else if (_converted.size() == 1) {
+        if (_options.format == UcPsr::OutputOptions::DOS) {
+            _converted.insert(0, "/");
+            return UcPsr::hasWhitespace(_converted)
+                ? UcPsr::delimit(_converted)
+                : _converted;
+        } else {
+            _converted.insert(0, "-");
+            return UcPsr::delimit(_converted);
+        }
+    } else {
+        if (_options.format == UcPsr::OutputOptions::DOS) {
+            _converted.insert(0, "/");
+            return UcPsr::hasWhitespace(_converted)
+                ? UcPsr::delimit(_converted)
+                : _converted;
+        } else {
+            _converted.insert(0, "--");
+            return UcPsr::delimit(_converted);
+        }
+    }
+}
+
+std::string &UcPsr::delimit(std::string &_str) noexcept {
+    _str.insert(0, "\"");
+    _str.insert(_str.size(), "\"");
+    return _str;
 }
 
 UcPsr::EscapeCodeConverter::EscapeCodeConverter(void) noexcept :
@@ -67,7 +144,7 @@ int32_t UcPsr::EscapeCodeConverter::available(
             << "Checking to see if this escape code converter "
                "can accept more hexadecimal characters...\n";
     }
-    return state == 0 || state == 1;
+    return state == 1 || state == 2;
 }
 
 int32_t UcPsr::EscapeCodeConverter::write(
@@ -82,8 +159,17 @@ int32_t UcPsr::EscapeCodeConverter::write(
             << this
             << "...\n";
     }
-    if (!this->available(_options)) {
+    if (state == 0) {
+        if (_hexChar == UcPsr::ESCCODE_START) {
+            state = 1;
+            return 0;
+        }
+    }
+    if (!this->isOk(_options)) {
         return 1;
+    }
+    if (!this->available(_options)) {
+        return -1;
     }
     int32_t _integer = UcPsr::hexToInt(_hexChar);
     if (_integer < 0) {
@@ -96,6 +182,28 @@ int32_t UcPsr::EscapeCodeConverter::write(
         state += 1;
     }
     return 0;
+}
+
+int32_t UcPsr::EscapeCodeConverter::write_str(
+    const std::string &_str,
+    const Options &_options
+) noexcept {
+    if (_options.verbosity >= 3) {
+        std::cout
+            << "Writing string to EscapeCodeConverter.\n";
+    }
+    for (auto _it : _str) {
+        if (!this->isOk(_options)) {
+            return 1;
+        }
+        if (!this->available(_options)) {
+            return 0;
+        }
+        int32_t _status = this->write_str(*_it, _options);
+        if (!URLCMD_ISOK(_status)) {
+            return _status;
+        }
+    }
 }
 
 void UcPsr::EscapeCodeConverter::hurl(const Options &_options) const {
@@ -112,18 +220,22 @@ int32_t UcPsr::EscapeCodeConverter::isOk(
             << "Checking to see if this escape code has been parsed "
             << "correctly.\n";
     }
-    return this->available(_options);
+    return this->available(_options) || state == 0;
 }
 
-std::optional<char> UcPsr::EscapeCodeConverter::get(
+std::optional<std::string> UcPsr::EscapeCodeConverter::get(
     const UcPsr::Options &_options
 ) const {
     if (_options.verbosity >= 3) {
         std::cout
-            << "Attempting to grab the character form by an escape code.\n";
+            << "Attempting to grab the character formed by an escape code.\n";
     }
     if (this->available(_options)) {
         return std::nullopt;
     }
-    return current;
+    if (current == '"') {
+        return std::string("\"");
+    } else {
+        return std::string(current);
+    }
 }

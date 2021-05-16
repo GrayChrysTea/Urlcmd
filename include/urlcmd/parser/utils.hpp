@@ -16,6 +16,17 @@ namespace Urlcmd::Parser {
         const std::string &_main,
         const std::string &_prefix
     ) noexcept;
+
+    int32_t hasWhitespace(const std::string &_str) noexcept;
+
+    std::string convertEscapeCodes(
+        const std::string &_str,
+        Options &_options
+    );
+
+    std::string generateFlag(const std::string &_str, Options &_options);
+
+    std::string &delimit(std::string &_str) noexcept;
     
     namespace EscapeCodeErrors {
         static const int32_t BAD_CHAR = -1;
@@ -36,9 +47,13 @@ namespace Urlcmd::Parser {
         EscapeCodeConverter &reset(const Options &_options) noexcept;
         int32_t available(const Options &_options) const noexcept;
         int32_t write(const char _hexChar, const Options &_options) noexcept;
+        int32_t write_str(
+            const std::string &_str,
+            const Options &_options
+        ) noexcept;
         void hurl(const Options &_options) const;
         int32_t isOk(const Options &_options) const noexcept;
-        std::optional<char> get(const Options &_options) const;
+        std::optional<std::string> get(const Options &_options) const;
     };
 }
 

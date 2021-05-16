@@ -74,6 +74,8 @@ namespace Urlcmd::Parser {
     static const size_t RESERVED_CHARS_SIZE = (
         sizeof(RESERVED_CHARS) / sizeof(char)
     );
+
+    static const char ESCCODE_START = '%';
 }
 
 #endif
