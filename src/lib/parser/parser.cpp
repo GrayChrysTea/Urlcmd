@@ -3,11 +3,11 @@
 
 namespace UcPsr = Urlcmd::Parser;
 
-UcPsr::Command::Command(UcPsr::Options _options) : mEscConverter(_options) {}
+UcPsr::Command::Command(UcPsr::Options &_options) : mEscConverter(_options) {}
 
 UcPsr::Command::Command(
     std::string _command,
-    UcPsr::Options _options
+    UcPsr::Options &_options
 ) :
     mEscConverter(_options)
 {
@@ -22,7 +22,7 @@ UcPsr::Command::Command(
 
 UcPsr::Command &UcPsr::Command::setCommand(
     std::string _command,
-    UcPsr::Options _options
+    UcPsr::Options &_options
 ) {
     if (_options.verbosity >= 2) {
         std::cout << "Setting a new command for this parser...\n";
@@ -35,7 +35,7 @@ UcPsr::Command &UcPsr::Command::setCommand(
     return *this;
 }
 
-UcPsr::Command &UcPsr::Command::clear(UcPsr::Options _options) {
+UcPsr::Command &UcPsr::Command::clear(UcPsr::Options &_options) {
     if (_options.verbosity >= 2) {
         std::cout
             << "Clearing command parser at "
@@ -56,7 +56,7 @@ UcPsr::Command &UcPsr::Command::clear(UcPsr::Options _options) {
     return *this;
 }
 
-int32_t UcPsr::Command::isDone(UcPsr::Options _options) {
+int32_t UcPsr::Command::isDone(UcPsr::Options &_options) {
     if (_options.verbosity >= 3) {
         std::cout
             << "Checking to see if this parser has "
@@ -65,7 +65,7 @@ int32_t UcPsr::Command::isDone(UcPsr::Options _options) {
     return mIndex >= mCommand.size();
 }
 
-int32_t UcPsr::Command::hasError(UcPsr::Options _options) {
+int32_t UcPsr::Command::hasError(UcPsr::Options &_options) {
     if (_options.verbosity >= 3) {
         std::cout
             << "Checking to see if this parser has noticed an error.\n";
@@ -73,14 +73,14 @@ int32_t UcPsr::Command::hasError(UcPsr::Options _options) {
     return mErr.size() > 0;
 }
 
-std::string UcPsr::Command::getError(UcPsr::Options _options) {
+std::string UcPsr::Command::getError(UcPsr::Options &_options) {
     if (_options.verbosity >= 3) {
         std::cout << "Getting error message...\n";
     }
     return mErr;
 }
 
-UcPsr::Command &UcPsr::Command::discardError(UcPsr::Options _options) {
+UcPsr::Command &UcPsr::Command::discardError(UcPsr::Options &_options) {
     if (_options.verbosity >= 3) {
         std::cout << "Discarding error message...\n";
     }
@@ -88,7 +88,7 @@ UcPsr::Command &UcPsr::Command::discardError(UcPsr::Options _options) {
     return *this;
 }
 
-int32_t UcPsr::Command::pProcessNext(UcPsr::Options _options) {
+int32_t UcPsr::Command::pProcessNext(UcPsr::Options &_options) {
     if (_options.verbosity >= 3) {
         std::cout << "Processing next character in command.\n";
     }

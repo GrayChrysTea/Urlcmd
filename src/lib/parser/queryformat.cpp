@@ -38,7 +38,7 @@ std::string UcPsr::formatOption(
         _options
     );
     std::string _arg = UcPsr::smartDelimit(
-        UcPsr::convertEscapeCodes(_right),
+        UcPsr::convertEscapeCodes(_right, _options),
         _options
     );
     if (_options.format == UcPsr::OutputOptions::DOS) {

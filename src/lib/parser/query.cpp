@@ -73,7 +73,6 @@ UcPsr::QueryKindDetector &UcPsr::QueryKindDetector::reset(
 }
 
 UcPsr::Query::Query(void) noexcept :
-    mStart(0),
     mKind(0),
     mDetector()
 {
@@ -88,7 +87,6 @@ UcPsr::Query::Query(
     size_t _start,
     UcPsr::Options &_options
 ) noexcept :
-    mStart(_start),
     mKind(0),
     mDetector(_options)
 {
@@ -104,11 +102,8 @@ UcPsr::Query::Query(
 }
 
 UcPsr::Query::Query(UcPsr::Query &&_other) noexcept :
-    mStart(_other.mStart),
-    mEnd(_other.mEnd),
     mKind(_other.mKind),
     mDetector(std::move(_other.mDetector)),
-    mResult(std::move(_other.mResult)),
     mPosition(_other.mPosition)
 {
     mStr = _other.mStr;
@@ -118,7 +113,7 @@ UcPsr::Query::Query(UcPsr::Query &&_other) noexcept :
     _other.mPosition = 0;
 }
 
-UcPsr::Query &operator=(UcPsr::Query &&_other) noexcept {
+UcPsr::Query &UcPsr::Query::operator=(UcPsr::Query &&_other) noexcept {
     mStr = _other.mStr;
     mStart = _other.mStart;
     mEnd = _other.mEnd;
@@ -198,27 +193,26 @@ std::string UcPsr::Query::result(UcPsr::Options &_options) {
         throw std::string("Invalid query.");
     }
     this->guessKind(_options);
-    std::string _result = "";
     switch (mKind) {
         case UcPsr::QueryKind::POSITIONAL:
-            _result = pYieldPositional(_options);
+            pYieldPositional(_options);
             break;
         case UcPsr::QueryKind::FLAG:
-            _result = pYieldFlag(_options);
+            pYieldFlag(_options);
             break;
         case UcPsr::QueryKind::OPTION:
-            _result = pYieldOption(_options);
+            pYieldOption(_options);
             break;
         case UcPsr::QueryKind::SUBCOMMANDFLAG:
-            _result = pYieldSubcommandFlag(_options);
+            pYieldSubcommandFlag(_options);
             break;
         case UcPsr::QueryKind::SUBCOMMANDOPTION:
-            _result = pYieldSubcommandOption(_options);
+            pYieldSubcommandOption(_options);
             break;
         default:
             throw std::string("Unknown query kind detected.");
     }
-    return _result;
+    return mResult;
 }
 
 UcPsr::Query &UcPsr::Query::pFindEnd(UcPsr::Options &_options) {
@@ -384,7 +378,11 @@ UcPsr::Query &UcPsr::Query::pYieldSubcommandFlag(UcPsr::Options &_options) {
             << "[Urlcmd::Parser::Query::pYieldSubcommandFlag]"
             << "Getting subcommand flag form of argument.\n";
     }
-    mResult = UcPsr::formatOption(pGetRight(_options), _options);
+    mResult = UcPsr::formatOption(
+        pGetLeft(_options),
+        pGetRight(_options),
+        _options
+    );
     return *this;
 }
 
