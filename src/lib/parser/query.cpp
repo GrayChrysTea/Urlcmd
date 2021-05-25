@@ -1,6 +1,4 @@
-#include <urlcmd/parser/query.hpp>
-#include <urlcmd/parser/queryformat.hpp>
-#include <urlcmd/parser/utils.hpp>
+#include <urlcmd/parser.hpp>
 #include <iostream>
 #include <boost/lexical_cast.hpp>
 

@@ -1,5 +1,4 @@
-#include <urlcmd/parser/path.hpp>
-#include <urlcmd/parser/utils.hpp>
+#include <urlcmd/parser.hpp>
 #include <iostream>
 #include <string>
 

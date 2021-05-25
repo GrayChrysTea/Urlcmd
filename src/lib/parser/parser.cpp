@@ -1,4 +1,4 @@
-#include <urlcmd/parser/parser.hpp>
+#include <urlcmd/parser.hpp>
 #include <iostream>
 
 namespace UcPsr = Urlcmd::Parser;

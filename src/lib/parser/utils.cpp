@@ -1,10 +1,8 @@
+#include <urlcmd/error.hpp>
+#include <urlcmd/parser.hpp>
 #include <cctype>
 #include <iostream>
 #include <string>
-#include <urlcmd/error.hpp>
-#include <urlcmd/parser/utils.hpp>
-#include <urlcmd/parser/constants.hpp>
-#include <urlcmd/parser/parser.hpp>
 
 namespace UcPsr = Urlcmd::Parser;
 

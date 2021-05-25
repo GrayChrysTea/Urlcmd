@@ -4,6 +4,7 @@
 
 #   include "parser/baseportion.hpp"
 #   include "parser/constants.hpp"
+#   include "parser/fragment.hpp"
 #   include "parser/parser.hpp"
 #   include "parser/path.hpp"
 #   include "parser/query.hpp"
