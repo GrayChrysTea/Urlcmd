@@ -23,24 +23,24 @@ namespace Urlcmd::Parser {
         ) noexcept;
         URLCMD_OPTION guess(Options &_options) noexcept;
         QueryKindDetector &reset(Options &_options) noexcept;
-    }
+    };
 
-    class Query : public Query {
+    class Query : public BasePortion {
         public:
-            Query(void) noexcept override;
+            Query(void) noexcept;
             Query(
                 std::string *_str,
                 size_t _start,
                 Options &_options
-            ) noexcept override;
-            Query(Query &&_other) noexcept override;
-            Query &operator=(Query &&_other) noexcept override;
+            ) noexcept;
+            Query(Query &&_other) noexcept;
+            Query &operator=(Query &&_other) noexcept;
 
             Query &replaceStr(
                 std::string *_str,
                 size_t _start,
                 Options &_options
-            ) override;
+            );
 
             URLCMD_OPTION guessKind(Options &_options);
             virtual int32_t isValid(Options &_options);
@@ -51,6 +51,7 @@ namespace Urlcmd::Parser {
             mutable URLCMD_OPTION mKind;
             mutable std::optional<size_t> mEqualsAt;
             mutable std::optional<size_t> mPosition;
+            
             Query &pFindEnd(Options &_options);
             std::string pGetLeft(Options &_options);
             std::string pGetRight(Options &_options);
@@ -59,7 +60,7 @@ namespace Urlcmd::Parser {
             Query &pYieldOption(Options &_options);
             Query &pYieldSubcommandFlag(Options &_options);
             Query &pYieldSubcommandOption(Options &_options);
-    }
+    };
 }
 
 #endif

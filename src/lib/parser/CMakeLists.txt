@@ -6,5 +6,6 @@ add_library(
     baseportion.cpp
     "path.cpp"
     query.cpp
+    queryformat.cpp
     fragment.cpp
 )

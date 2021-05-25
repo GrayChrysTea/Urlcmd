@@ -6,6 +6,8 @@
 #   include "parser/constants.hpp"
 #   include "parser/parser.hpp"
 #   include "parser/path.hpp"
+#   include "parser/query.hpp"
+#   include "parser/queryformat.hpp"
 #   include "parser/utils.hpp"
 
 #endif

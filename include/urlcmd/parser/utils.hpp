@@ -26,7 +26,12 @@ namespace Urlcmd::Parser {
 
     std::string generateFlag(const std::string &_str, Options &_options);
 
-    std::string &delimit(std::string &_str) noexcept;
+    std::string delimit(const std::string &_str) noexcept;
+
+    std::string smartDelimit(
+        const std::string &_str,
+        Options &_options
+    ) noexcept;
     
     namespace EscapeCodeErrors {
         static const int32_t BAD_CHAR = -1;

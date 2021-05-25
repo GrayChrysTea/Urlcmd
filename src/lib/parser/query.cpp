@@ -1,4 +1,5 @@
 #include <urlcmd/parser/query.hpp>
+#include <urlcmd/parser/queryformat.hpp>
 #include <urlcmd/parser/utils.hpp>
 #include <iostream>
 #include <boost/lexical_cast.hpp>
@@ -197,21 +198,22 @@ std::string UcPsr::Query::result(UcPsr::Options &_options) {
         throw std::string("Invalid query.");
     }
     this->guessKind(_options);
+    std::string _result = "";
     switch (mKind) {
         case UcPsr::QueryKind::POSITIONAL:
-            pYieldPositional(_options);
+            _result = pYieldPositional(_options);
             break;
         case UcPsr::QueryKind::FLAG:
-            pYieldFlag(_options);
+            _result = pYieldFlag(_options);
             break;
         case UcPsr::QueryKind::OPTION:
-            pYieldOption(_options);
+            _result = pYieldOption(_options);
             break;
         case UcPsr::QueryKind::SUBCOMMANDFLAG:
-            pYieldSubcommandFlag(_options);
+            _result = pYieldSubcommandFlag(_options);
             break;
         case UcPsr::QueryKind::SUBCOMMANDOPTION:
-            pYieldSubcommandOption(_options);
+            _result = pYieldSubcommandOption(_options);
             break;
         default:
             throw std::string("Unknown query kind detected.");
@@ -257,7 +259,7 @@ UcPsr::Query &UcPsr::Query::pFindEnd(UcPsr::Options &_options) {
                     ) + UcPsr::QUERY_SEPARATOR
                     + std::string(
                         "' at index "
-                    ) + std::to_string(index);
+                    ) + std::to_string(_index);
                 } else if (_parseState == UcPsr::QueryParseState::RIGHT) {
                     _result = _index;
                     break;
@@ -281,7 +283,7 @@ UcPsr::Query &UcPsr::Query::pFindEnd(UcPsr::Options &_options) {
                     ) + UcPsr::QUERY_EQUALS
                     + std::string(
                         "' at index "
-                    ) + std::to_string(index);
+                    ) + std::to_string(_index);
                 } else {
                     throw std::string(
                         "[Urlcmd::Parser::Query::pFindEnd] "
@@ -337,7 +339,7 @@ UcPsr::Query &UcPsr::Query::pYieldPositional(UcPsr::Options &_options) {
             "Invalid left side in this positional query: "
         ) + *mStr;
     }
-    mResult = UcPsr::convertEscapeCodes(_right, _options);
+    mResult = UcPsr::formatPositional(_right, _options);
     mPosition = _pos;
     return *this;
 }
@@ -350,11 +352,53 @@ UcPsr::Query &UcPsr::Query::pYieldFlag(UcPsr::Options &_options) {
     }
     std::string _left = pGetLeft(_options).substr(1);
     std::string _right = pGetRight(_options);
-    std::string _flag = UcPsr::generateFlag(_left, _options);
-    size_t _reps = boost::lexical_cast<size_t>(_right);
-    mResult = "";
-    for (size_t _i = 0; _i < _reps; _i++) {
-        mResult += _flag + " ";
+    size_t _reps = 0;
+    try {
+        _reps = boost::lexical_cast<size_t>(_right);
+    } catch (const boost::bad_lexical_cast &_e) {
+        throw std::string(
+            "Invalid right side in this flag argument: "
+        ) + *mStr;
     }
+    mResult = UcPsr::formatFlag(_reps, _left, _options);
+    return *this;
+}
+
+UcPsr::Query &UcPsr::Query::pYieldOption(UcPsr::Options &_options) {
+    if (_options.verbosity >= 4) {
+        std::cout
+            << "[Urlcmd::Parser::Query::pYieldFlag]"
+            << "Getting option form of argument.\n";
+    }
+    mResult = UcPsr::formatOption(
+        pGetLeft(_options),
+        pGetRight(_options),
+        _options
+    );
+    return *this;
+}
+
+UcPsr::Query &UcPsr::Query::pYieldSubcommandFlag(UcPsr::Options &_options) {
+    if (_options.verbosity >= 4) {
+        std::cout
+            << "[Urlcmd::Parser::Query::pYieldSubcommandFlag]"
+            << "Getting subcommand flag form of argument.\n";
+    }
+    mResult = UcPsr::formatOption(pGetRight(_options), _options);
+    return *this;
+}
+
+UcPsr::Query &UcPsr::Query::pYieldSubcommandOption(UcPsr::Options &_options) {
+    if (_options.verbosity >= 4) {
+        std::cout
+            << "[Urlcmd::Parser::Query::pYieldSubcommandOption]"
+            << "Getting subcommand option form of argument.\n";
+    }
+    std::string _left = pGetLeft(_options).substr(1);
+    mResult = UcPsr::formatSubcommandOption(
+        _left,
+        pGetRight(_options),
+        _options
+    );
     return *this;
 }

@@ -49,13 +49,13 @@ std::string UcPsr::convertEscapeCodes(
     const std::string &_str,
     UcPsr::Options &_options
 ) {
-    EscapeCodeConverter _converter(_options);
+    UcPsr::EscapeCodeConverter _converter(_options);
     std::string _result = "";
     for (size_t _index = 0; _index < _str.size(); _index++) {
         char _current = _str[_index];
         int32_t _state = _converter.write(_current, _options);
         if (URLCMD_ISWARN(_state)) {
-            _result += _converter.get(_options);
+            _result += _converter.get(_options).value();
             _converter.reset(_options);
             _state = _converter.write(_current, _options);
             if (!URLCMD_ISOK(_state)) {
@@ -83,9 +83,7 @@ std::string UcPsr::generateFlag(
     } else if (_converted.size() == 1) {
         if (_options.format == UcPsr::OutputOptions::DOS) {
             _converted.insert(0, "/");
-            return UcPsr::hasWhitespace(_converted)
-                ? UcPsr::delimit(_converted)
-                : _converted;
+            return UcPsr::smartDelimit(_converted, _options);
         } else {
             _converted.insert(0, "-");
             return UcPsr::delimit(_converted);
@@ -93,9 +91,7 @@ std::string UcPsr::generateFlag(
     } else {
         if (_options.format == UcPsr::OutputOptions::DOS) {
             _converted.insert(0, "/");
-            return UcPsr::hasWhitespace(_converted)
-                ? UcPsr::delimit(_converted)
-                : _converted;
+            return UcPsr::smartDelimit(_converted, _options);
         } else {
             _converted.insert(0, "--");
             return UcPsr::delimit(_converted);
@@ -103,10 +99,27 @@ std::string UcPsr::generateFlag(
     }
 }
 
-std::string &UcPsr::delimit(std::string &_str) noexcept {
-    _str.insert(0, "\"");
-    _str.insert(_str.size(), "\"");
-    return _str;
+std::string UcPsr::delimit(const std::string &_str) noexcept {
+    std::string _result = _str;
+    _result.insert(0, "\"");
+    _result.insert(_str.size(), "\"");
+    return _result;
+}
+
+std::string UcPsr::smartDelimit(
+    const std::string &_str,
+    UcPsr::Options &_options
+) noexcept {
+    switch (_options.format) {
+        case UcPsr::OutputOptions::DOS:
+            if (UcPsr::hasWhitespace(_str)) {
+                return UcPsr::delimit(_str);
+            } else {
+                return _str;
+            }
+        default:
+            return UcPsr::delimit(_str);
+    }
 }
 
 UcPsr::EscapeCodeConverter::EscapeCodeConverter(void) noexcept :
@@ -163,6 +176,10 @@ int32_t UcPsr::EscapeCodeConverter::write(
         if (_hexChar == UcPsr::ESCCODE_START) {
             state = 1;
             return 0;
+        } else {
+            // If we are not already parsing an escape code,
+            // ignore the character altogether
+            return 0;
         }
     }
     if (!this->isOk(_options)) {
@@ -199,11 +216,12 @@ int32_t UcPsr::EscapeCodeConverter::write_str(
         if (!this->available(_options)) {
             return 0;
         }
-        int32_t _status = this->write_str(*_it, _options);
+        int32_t _status = this->write(_it, _options);
         if (!URLCMD_ISOK(_status)) {
             return _status;
         }
     }
+    return 1;
 }
 
 void UcPsr::EscapeCodeConverter::hurl(const Options &_options) const {
@@ -236,6 +254,6 @@ std::optional<std::string> UcPsr::EscapeCodeConverter::get(
     if (current == '"') {
         return std::string("\"");
     } else {
-        return std::string(current);
+        return std::string(1, current);
     }
 }
