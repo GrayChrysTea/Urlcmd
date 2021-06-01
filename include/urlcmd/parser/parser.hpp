@@ -12,33 +12,25 @@
 namespace Urlcmd::Parser {
     class Command {
         public:
-            Command(Options &_options);
-            Command(std::string _command, Options &_options);
-            Command &setCommand(std::string _command, Options &_options);
-            Command &clear(Options &_options);
-            int32_t isDone(Options &_options);
-            int32_t hasError(Options &_options);
-            std::string getError(Options &_options);
-            Command &discardError(Options &_options);
-            Command &process(Options &_options);
-            
-        private:
-            int32_t pCheck(Options &_options);
-            int32_t pWrite(Options &_options);
-            int32_t pProcessNext(Options &_options);
+            Command(void) noexcept;
+            Command(const std::string _command, Options &_options) noexcept;
+            Command(const Command &_other) = default;
+            Command(Command &&_other) = default;
+            Command &operator=(const Command &_other) = default;
+            Command &operator=(Command &&_other) = default;
 
-            size_t mIndex;
-            URLCMD_OPTION mUrlPart;
-            URLCMD_OPTION mState;
-            URLCMD_OPTION mQueryParseState;
-            URLCMD_OPTION mQueryKind;
-            EscapeCodeConverter mEscConverter;
+            std::vector<std::string> result_arr(Options &_options);
+            std::string result(Options &_options);
+            Command &clear(Options &_options);
+            Command &reset(Options &_options);
+        private:
             std::string mCommand;
-            std::string mPath;
-            std::string mFragment;
-            std::vector<std::string> mArgs;
-            std::unordered_map<size_t, std::string> mPositionals;
-            std::string mErr;
+            mutable size_t mIndex;
+            mutable std::vector<std::string> mResult;
+            URLCMD_OPTION mUrlPart;
+
+            size_t &pNextPart(Options &_options);
+            Command &pParse(Options &_options);
     };
 }
 
