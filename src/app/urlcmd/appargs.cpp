@@ -69,11 +69,11 @@ Uc2::AppArgs::AppArgs(int argc, char **argv) {
     );
     po::notify(vmap);
 
-    mHelp = vmap.count("help");
-    mVersion = vmap.count("version");
-    mPreview = vmap.count("preview");
-    mDosForm = vmap.count("dos");
-    mSkip = vmap.count("skip");
+    mHelp = (int) vmap.count("help");
+    mVersion = (int) vmap.count("version");
+    mPreview = (int) vmap.count("preview");
+    mDosForm = (int) vmap.count("dos");
+    mSkip = (int) vmap.count("skip");
 
     if (mHelp) {
         Uc2::printHelp(cmdlineOptions);

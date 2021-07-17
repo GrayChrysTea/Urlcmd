@@ -5,6 +5,7 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 set(CMAKE_CXX_STANDARD 17)
 
+set(Boost_ARCHITECTURE "-x64")
 find_package(Boost COMPONENTS regex program_options REQUIRED)
 if(${Boost_FOUND})
     message("Found boost and required packages.")
